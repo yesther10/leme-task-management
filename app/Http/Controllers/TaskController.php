@@ -22,18 +22,23 @@ class TaskController extends Controller
         if ($request->ajax()) {
 
             $userId = Auth::id();
-
-            // $query = Task::whereHas('project.members', function ($q) use ($userId) {
-            //     $q->where('user_id', $userId);
-            // })->with(['project', 'user', 'files'])->select('tasks.*');
-
+            
             $query = Task::with(['project', 'user', 'files'])
-            ->where('user_id', $userId)
-            ->select('tasks.*');
+                ->where('user_id', $userId)
+                ->select('tasks.*');
 
             return DataTables::of($query)
                 ->addColumn('project', fn($task) => $task->project->title)
-                ->addColumn('user', fn($task) => $task->user->name)
+                // ->addColumn('user', fn($task) => $task->user->name)
+                ->addColumn('due_date', function ($task) {
+                    return $task->due_date ? $task->due_date->format('d/m/Y') : '';
+                })
+                ->addColumn('status', function ($task) {
+                    return $task->status->name ;
+                })
+                ->addColumn('priority', function ($task) {
+                    return $task->priority->name ;
+                })
                 ->addColumn('files', function ($task) {
                     return $task->files->map(fn($file) => '<a href="'.Storage::url($file->file_path).'" target="_blank">Archivo</a>')->implode(', ');
                 })
@@ -123,7 +128,7 @@ class TaskController extends Controller
                 $file->delete();
             }
         }
-        
+
         $task->update($data);
 
         if ($request->hasFile('files')) {

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use Carbon\Carbon;
 class ProjectController extends Controller
 {
     /**
@@ -22,6 +23,12 @@ class ProjectController extends Controller
                 ->addIndexColumn()
                 ->addColumn('owner', fn($p) => $p->user->name)
                 ->addColumn('members_count', fn($p) => $p->members->count())
+                ->addColumn('start_date', function ($task) {
+                    return $task->start_date ? $task->start_date->format('d/m/Y') : '';
+                })
+                ->addColumn('due_date', function ($task) {
+                    return $task->due_date ? $task->due_date->format('d/m/Y') : '';
+                })
                 ->addColumn('action', function($row){
                     $btn = '<a href="'.route('projects.edit', $row->id).'" class="edit btn btn-primary btn-sm">Editar</a>';
                     $btn .= ' <form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
