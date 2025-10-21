@@ -27,9 +27,16 @@ class TaskController extends Controller
                 ->where('user_id', $userId)
                 ->select('tasks.*');
 
+            if ($request->filled('status')) {
+                $query->where('status', $request->get('status'));
+            }
+
+            if ($request->filled('priority')) {
+                $query->where('priority', $request->get('priority'));
+            }
+
             return DataTables::of($query)
                 ->addColumn('project', fn($task) => $task->project->title)
-                // ->addColumn('user', fn($task) => $task->user->name)
                 ->addColumn('due_date', function ($task) {
                     return $task->due_date ? $task->due_date->format('d/m/Y') : '';
                 })
@@ -42,12 +49,19 @@ class TaskController extends Controller
                 ->addColumn('files', function ($task) {
                     return $task->files->map(fn($file) => '<a href="'.Storage::url($file->file_path).'" target="_blank">Archivo</a>')->implode(', ');
                 })
+                
                 ->addColumn('action', function($row){
                     $btn = '<a href="'.route('tasks.edit', $row->id).'" class="edit btn btn-primary btn-sm">Editar</a>';
                     $btn .= ' <form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
                                 '.csrf_field().method_field('DELETE').'
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'¿Eliminar proyecto?\')">Eliminar</button>
                               </form>';
+                    if ($row->status !== \App\Enums\TaskStatus::Completed) {
+                        $btn .= '<button data-id="'.$row->id.'" class="btn btn-success btn-sm btn-complete" title="Marcar como Completada">';
+                        $btn .= '<i class="fas fa-check"></i></button>';
+                        return $btn;
+                    }
+                    
                     return $btn;
                 })
                 ->rawColumns(['files','action'])
@@ -147,6 +161,16 @@ class TaskController extends Controller
         $task->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Tarea eliminada correctamente');
+    }
+
+    public function markComplete(Task $task)
+    {
+        $task->update(['status' => \App\Enums\TaskStatus::Completed->value]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tarea marcada como completada'
+        ]);
     }
 
 }
