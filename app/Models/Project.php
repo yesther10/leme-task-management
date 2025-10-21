@@ -12,6 +12,11 @@ class Project extends Model
 
     protected $fillable = ['title', 'description', 'start_date', 'due_date', 'user_id', 'file_path'];
 
+    protected $casts = [
+        'start_date' => 'date',
+        'due_date' => 'date',
+    ];    
+
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
