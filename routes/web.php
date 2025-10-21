@@ -13,7 +13,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['middleware' => ['auth']], function () {
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
-    Route::post('tasks/{task}/files', [App\Http\Controllers\TaskFileController::class, 'store'])->name('tasks.files.store');
+    // Route::post('tasks/{task}/files', [App\Http\Controllers\TaskFileController::class, 'store'])->name('tasks.files.store');
     Route::delete('tasks/{task}/files/{file}', [App\Http\Controllers\TaskFileController::class, 'destroy'])->name('tasks.files.destroy');
 
     Route::get('download/{filename}', [App\Http\Controllers\DownloadFileController::class, 'download'])->name('files.download');

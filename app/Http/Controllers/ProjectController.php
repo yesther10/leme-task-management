@@ -17,10 +17,10 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Project::with('owner', 'members')->select('projects.*');
+            $query = Project::with('user', 'members')->select('projects.*');
             return DataTables::of($query)
                 ->addIndexColumn()
-                ->addColumn('owner', fn($p) => $p->owner->name)
+                ->addColumn('owner', fn($p) => $p->user->name)
                 ->addColumn('members_count', fn($p) => $p->members->count())
                 ->addColumn('action', function($row){
                     $btn = '<a href="'.route('projects.edit', $row->id).'" class="edit btn btn-primary btn-sm">Editar</a>';

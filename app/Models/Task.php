@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\TaskStatus;
+use App\Enums\TaskPriority;
 
 class Task extends Model
 {
@@ -11,6 +13,12 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'description', 'due_date', 'priority', 'status', 'project_id', 'user_id'];
+
+    protected $casts = [
+        'due_date' => 'date',
+        'status' => TaskStatus::class,
+        'priority' => TaskPriority::class,
+    ];
 
     public function project()
     {

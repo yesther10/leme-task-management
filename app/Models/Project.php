@@ -17,7 +17,7 @@ class Project extends Model
         'due_date' => 'date',
     ];    
 
-    public function owner()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
