@@ -45,28 +45,27 @@ Abra o `.env` e configure os dados da base de dados de acordo com seu ambiente l
 php artisan key:generate
 ```
 
-### 5\. limpar e gerar cache
+### 6\. limpar e Otimizar o Cache
 
 ```bash
 php artisan optimize
 ```
 
-### 6\. Executar migrações e _seeders_
+### 7\. Executar migrações e _seeders_
 
 ```bash
-php artisan migrate
-php artisan db:seed
+php artisan migrate:fresh --seed
 ```
 
-### 7\. Use o nome de usuário email:user@correo.com e a senha:password para efetuar login no sistema e ter uma visão geral rápida s\_
+### 8\. Use o nome de usuário email:user@correo.com e a senha:password para efetuar login no sistema e ter uma visão geral rápida s\_
 
-### 8\. Crie um link simbólico para a pasta de armazenamento para acessar os arquivos armazenados s\_
+### 9\. Crie um link simbólico para a pasta de armazenamento para acessar os arquivos armazenados s\_
 
 ```bash
 php artisan storage:link
 ```
 
-### 9\. Executar o servidor local do Laravel
+### 10\. Executar o servidor local do Laravel
 
 ```bash
 php artisan serve
