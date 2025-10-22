@@ -54,10 +54,10 @@ class TaskController extends Controller
                     $btn = '<a href="'.route('tasks.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
                     $btn .= '<i class="fas fa-eye"></i></a> ';
 
-                    $btn .= '<a href="'.route('projects.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
+                    $btn .= '<a href="'.route('tasks.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
                     $btn .= '<i class="fas fa-edit"></i></a> ';
 
-                    $btn .= '<form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
+                    $btn .= '<form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
                                 '.csrf_field().method_field('DELETE').'
                                 <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
                                     <i class="fas fa-trash"></i>
@@ -148,6 +148,8 @@ class TaskController extends Controller
 
     public function update(TaskRequest $request, Task $task)
     {
+        $this->authorize('update', $task);
+
         $data = $request->validated();
 
         // Eliminar archivos seleccionados
@@ -173,6 +175,8 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        $this->authorize('delete', $task);
+
         $task->files()->delete();
         $task->delete();
 
