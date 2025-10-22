@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 class ProjectController extends Controller
 {
     /**
@@ -18,32 +18,49 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Project::with('user', 'members')->select('projects.*')
-                ->where('user_id', auth()->id());
+
+            $user = Auth::user();            
+
+            // 1. Inicia la consulta del modelo Project, incluyendo las relaciones necesarias
+            $query = Project::with('user', 'members')->select('projects.*');
+
+            // 2. Agrupar las condiciones OR: (creador = yo) O (miembro = yo)
+            $query->where(function ($q) use ($user) {
+                // Condición 1: Proyectos que el usuario creó
+                $q->where('user_id', $user->id)
+                
+                // Condición 2: O Proyectos donde el usuario es miembro (a través de la tabla pivote project_user)
+                ->orWhereHas('members', function ($subQ) use ($user) {
+                    $subQ->where('users.id', $user->id);
+                });
+            });
+
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('owner', fn($p) => $p->user->name)
                 ->addColumn('members_count', fn($p) => $p->members->count())
-                ->addColumn('start_date', function ($task) {
-                    return $task->start_date ? $task->start_date->format('d/m/Y') : '';
+                ->addColumn('start_date', function ($project) {
+                    return $project->start_date ? $project->start_date->format('d/m/Y') : '';
                 })
-                ->addColumn('due_date', function ($task) {
-                    return $task->due_date ? $task->due_date->format('d/m/Y') : '';
+                ->orderColumn('start_date', 'start_date $1')
+                ->addColumn('due_date', function ($project) {
+                    return $project->due_date ? $project->due_date->format('d/m/Y') : '';
                 })
-                ->addColumn('action', function($row){
+                ->orderColumn('due_date', 'due_date $1')
+                ->addColumn('action', function($row)use($user){
                     $btn = '<a href="'.route('projects.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
                     $btn .= '<i class="fas fa-eye"></i></a> ';
+                    if($user->can('update', $row)) {
+                        $btn .= '<a href="'.route('projects.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
+                        $btn .= '<i class="fas fa-edit"></i></a> ';
 
-                    $btn .= '<a href="'.route('projects.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
-                    $btn .= '<i class="fas fa-edit"></i></a> ';
-
-                    $btn .= '<form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
-                                '.csrf_field().method_field('DELETE').'
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>';
-
+                        $btn .= '<form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
+                                    '.csrf_field().method_field('DELETE').'
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>';
+                    }
                     return $btn;
                 })
                 ->addColumn('attachment_link', function ($project) {
