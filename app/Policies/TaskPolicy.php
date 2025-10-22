@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\TaskStatus;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -37,7 +38,9 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->user_id;
+        return ($user->id === $task->user_id  || 
+                    $task->project->members->contains($user)) &&
+               $task->status !== TaskStatus::Completed;
     }
 
     /**

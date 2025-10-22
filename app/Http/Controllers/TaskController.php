@@ -18,19 +18,32 @@ class TaskController extends Controller
      */
     public function index( Request $request)
     {
-        
-        if ($request->ajax()) {
-
-            $userId = Auth::id();
             
-            $query = Task::with(['project', 'user', 'files'])
-                ->where('user_id', $userId)
-                ->select('tasks.*');
+        if ($request->ajax()) {
+           
+            $user = Auth::user();
 
+            $query = Task::query()
+            // 1. Tareas que creaste (donde eres el responsable, 'user_id' en la tabla 'tasks')
+            ->where(function ($query) use ($user) {
+            
+                // 1. Condición A: Tareas que creaste (donde eres el responsable)
+                $query->where('user_id', $user->id)
+                    
+                    // 2. Condición B: O tareas que pertenecen a proyectos de los que eres miembro
+                    ->orWhereHas('project', function ($q) use ($user) {
+                        // Dentro de la relación 'project', busca proyectos que tienen al usuario actual
+                        $q->whereHas('members', function ($subQ) use ($user) {
+                            $subQ->where('project_user.user_id', $user->id);
+                        });
+                    });
+            });
+
+            // Condición PRINCIPAL: status = 3 (Esto es el AND después del grupo OR)        
             if ($request->filled('status')) {
                 $query->where('status', $request->get('status'));
             }
-
+            // Condición PRINCIPAL: priority = 3 (Esto es el AND después del grupo OR)        
             if ($request->filled('priority')) {
                 $query->where('priority', $request->get('priority'));
             }
@@ -50,21 +63,21 @@ class TaskController extends Controller
                     return $task->files->map(fn($file) => '<a href="'.Storage::url($file->file_path).'" target="_blank">Archivo</a>')->implode(', ');
                 })
                 
-                ->addColumn('action', function($row){
+                ->addColumn('action', function($row)use($user){
                     $btn = '<a href="'.route('tasks.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
                     $btn .= '<i class="fas fa-eye"></i></a> ';
                     if($row->status !== TaskStatus::Completed){
                         $btn .= '<a href="'.route('tasks.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
                         $btn .= '<i class="fas fa-edit"></i></a> ';
                     }
-
-                    $btn .= '<form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
+                    if($user->can('delete', $row)){
+                        $btn .= '<form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
                                 '.csrf_field().method_field('DELETE').'
                                 <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>';
-
+                    }   
 
                     if ($row->status !== \App\Enums\TaskStatus::Completed) {
                         $btn .= '<button data-id="'.$row->id.'" class="btn btn-success btn-sm btn-complete" title="Marcar como Completada">';
@@ -89,7 +102,6 @@ class TaskController extends Controller
 
     public function create()
     {
-        // $projects = Project::all();
 
         $userId = Auth::id();
 
@@ -105,7 +117,6 @@ class TaskController extends Controller
         $projectIds = array_unique(array_merge($ownedProjects, $memberProjects));
         $projects = Project::whereIn('id', $projectIds)->get();
         
-        // $users = User::all();
         return view('tasks.create', compact('projects'));
     }
 
@@ -113,7 +124,6 @@ class TaskController extends Controller
     {
         $data = $request->validated();
 
-        // dd($data);
         $data ['user_id']= Auth::id();
 
         $task = Task::create($data);
