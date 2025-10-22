@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskPriority;
-use Illuminate\Http\Request;
 use App\Models\Task;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\TaskStatus;
-use Illuminate\Database\Eloquent\Builder;
-
+use App\Models\Project;
 class DashboardController extends Controller
 {   
     /**
@@ -18,15 +15,9 @@ class DashboardController extends Controller
     public function metrics()
     {
         $user = Auth::user();
-        
-        // 1. Obtener los IDs de los proyectos de los que el usuario es miembro
-        $memberProjectIds = $user->projects()->pluck('projects.id');
-
-        // Función de ámbito para reusar la lógica de "tareas relevantes para el usuario"
-        $relevantTasks = Task::where(function (Builder $query) use ($user, $memberProjectIds) {
-            $query->where('user_id', $user->id) // Tareas que creó
-                ->orWhereIn('project_id', $memberProjectIds); // Tareas en proyectos de los que es miembro
-        });
+                
+        // Función de ámbito para reusar la lógica de "tareas relevantes para el usuario"       
+        $relevantTasks = Task::relevantToUser($user);
 
         // ===================================
         // A. CÁLCULO DE MÉTRICAS (InfoBoxes)
@@ -34,21 +25,21 @@ class DashboardController extends Controller
 
         // 1. Tareas Pendientes (Status 1)
         $pendingTasksCount = (clone $relevantTasks)
-            ->where('status', 1)
+            ->where('status', TaskStatus::Pending->value)
             ->count();
         
         // 2. Tareas Vencidas (Due date < Hoy y NO completadas)
         $overdueTasksCount = (clone $relevantTasks)
             ->where('due_date', '<', now()->startOfDay())
-            ->where('status', '!=', 3) // Excluir completadas
+            ->where('status', '!=', TaskStatus::Completed->value) // Excluir completadas
             ->count();
 
-        // 3. Proyectos Activos (solo los que el usuario es miembro)
-        $activeProjectsCount = $memberProjectIds->count();
+        // 3. Proyectos Activos (creados por el usuario y los que el usuario es miembro)
+        $activeProjectsCount = Project::accessibleByUser($user)->count();
         
         // 4. Tareas Terminadas Hoy (Status 3)
         $completedTodayCount = (clone $relevantTasks)
-            ->where('status', 3)
+            ->where('status', TaskStatus::Completed->value)
             ->whereDate('updated_at', now()->today())
             ->count();
 
@@ -63,19 +54,13 @@ class DashboardController extends Controller
                 $query->where('priority', TaskPriority::High->value) // Alta prioridad
                       ->orWhere('due_date', '<', now()->startOfDay()); // Vencidas
             })
-            ->where('status', '!=', 3) // Que no estén completadas
+            ->where('status', '!=', TaskStatus::Completed->value) // Que no estén completadas
             ->orderBy('priority', 'desc')
             ->orderBy('due_date', 'asc')
             ->limit(7)
             ->with('project') // Cargar el nombre del proyecto
             ->get();
-            
-        // // 2. Actividad Reciente (Últimas tareas actualizadas en sus proyectos)
-        // $recentActivity = Task::whereIn('project_id', $memberProjectIds)
-        //     ->orderBy('updated_at', 'desc')
-        //     ->limit(10)
-        //     ->with(['project', 'creator'])
-        //     ->get();
+                   
 
         return view('dashboard', compact(
             'pendingTasksCount', 

@@ -24,16 +24,7 @@ class ProjectController extends Controller
             // 1. Inicia la consulta del modelo Project, incluyendo las relaciones necesarias
             $query = Project::with('user', 'members')->select('projects.*');
 
-            // 2. Agrupar las condiciones OR: (creador = yo) O (miembro = yo)
-            $query->where(function ($q) use ($user) {
-                // Condición 1: Proyectos que el usuario creó
-                $q->where('user_id', $user->id)
-                
-                // Condición 2: O Proyectos donde el usuario es miembro (a través de la tabla pivote project_user)
-                ->orWhereHas('members', function ($subQ) use ($user) {
-                    $subQ->where('users.id', $user->id);
-                });
-            });
+            $query->accessibleByUser($user);
 
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -96,7 +87,7 @@ class ProjectController extends Controller
                 ->store('project_attachments', 'public');
         }
 
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = Auth::id();
 
         $project = Project::create($data);
 

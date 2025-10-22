@@ -23,21 +23,7 @@ class TaskController extends Controller
            
             $user = Auth::user();
 
-            $query = Task::query()
-            // 1. Tareas que creaste (donde eres el responsable, 'user_id' en la tabla 'tasks')
-            ->where(function ($query) use ($user) {
-            
-                // 1. Condición A: Tareas que creaste (donde eres el responsable)
-                $query->where('user_id', $user->id)
-                    
-                    // 2. Condición B: O tareas que pertenecen a proyectos de los que eres miembro
-                    ->orWhereHas('project', function ($q) use ($user) {
-                        // Dentro de la relación 'project', busca proyectos que tienen al usuario actual
-                        $q->whereHas('members', function ($subQ) use ($user) {
-                            $subQ->where('project_user.user_id', $user->id);
-                        });
-                    });
-            });
+            $query = Task::relevantToUser($user);
 
             // Condición PRINCIPAL: status = 3 (Esto es el AND después del grupo OR)        
             if ($request->filled('status')) {
@@ -103,19 +89,7 @@ class TaskController extends Controller
     public function create()
     {
 
-        $userId = Auth::id();
-
-        // Obtener proyectos donde el usuario es dueño
-        $ownedProjects = Project::where('user_id', $userId)->pluck('id')->toArray();
-
-        // Obtener proyectos donde el usuario es miembro (vía relación belongsToMany)
-        $memberProjects = Project::whereHas('members', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->pluck('id')->toArray();
-
-        // Unir ambos arrays y obtener proyectos
-        $projectIds = array_unique(array_merge($ownedProjects, $memberProjects));
-        $projects = Project::whereIn('id', $projectIds)->get();
+        $projects = Project::accessibleByUser(Auth::user())->get();
         
         return view('tasks.create', compact('projects'));
     }
@@ -140,20 +114,10 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
-        $userId = Auth::id();
-        // Obtener proyectos donde el usuario es dueño
-        $ownedProjects = Project::where('user_id', $userId)->pluck('id')->toArray();
-
-        // Obtener proyectos donde el usuario es miembro (vía relación belongsToMany)
-        $memberProjects = Project::whereHas('members', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->pluck('id')->toArray();
-
-        // Unir ambos arrays y obtener proyectos
-        $projectIds = array_unique(array_merge($ownedProjects, $memberProjects));
-        $projects = Project::whereIn('id', $projectIds)->get();
+        $projects = Project::accessibleByUser(Auth::user())->get();
 
         $task->load('files');
+        
         return view('tasks.edit', compact('task', 'projects'));
     }
 
