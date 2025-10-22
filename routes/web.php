@@ -17,7 +17,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('tasks', TaskController::class);
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'markComplete'])->name('tasks.complete');
     
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'metrics'])->name('dashboard');
 
 });
 
