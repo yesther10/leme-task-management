@@ -75,6 +75,12 @@ Geralmente estará disponível em `http://localhost:8000`.
 
 ---
 
+### 11\. Para executar testes (se desejado)l
+
+```bash
+php artisan test
+```
+
 ## Acesso
 
 Pode criar um usuário através do registro ou use os dados fornecidos pelos _seeders_ para testar o sistema.
