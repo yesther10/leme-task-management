@@ -30,11 +30,19 @@ class ProjectController extends Controller
                     return $task->due_date ? $task->due_date->format('d/m/Y') : '';
                 })
                 ->addColumn('action', function($row){
-                    $btn = '<a href="'.route('projects.edit', $row->id).'" class="edit btn btn-primary btn-sm">Editar</a>';
-                    $btn .= ' <form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
+                    $btn = '<a href="'.route('projects.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
+                    $btn .= '<i class="fas fa-eye"></i></a> ';
+
+                    $btn .= '<a href="'.route('projects.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
+                    $btn .= '<i class="fas fa-edit"></i></a> ';
+
+                    $btn .= '<form action="'.route('projects.destroy', $row->id).'" method="POST" style="display:inline;">
                                 '.csrf_field().method_field('DELETE').'
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'¿Eliminar proyecto?\')">Eliminar</button>
-                              </form>';
+                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>';
+
                     return $btn;
                 })
                 ->addColumn('attachment_link', function ($project) {
@@ -84,7 +92,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return view('projects.show', compact('project'));
     }
 
     /**
