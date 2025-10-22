@@ -10,74 +10,28 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\TaskStatus;
+use App\DataTables\TaskDataTable;
 
 class TaskController extends Controller
 {
+    public function __construct( 
+        protected TaskDataTable $dataTable
+    ) {}
     /**
      * Display a listing of the resource.
      */
     public function index( Request $request)
     {
             
+
         if ($request->ajax()) {
            
-            $user = Auth::user();
-
-            $query = Task::relevantToUser($user);
-
-            // Condición PRINCIPAL: status = 3 (Esto es el AND después del grupo OR)        
-            if ($request->filled('status')) {
-                $query->where('status', $request->get('status'));
-            }
-            // Condición PRINCIPAL: priority = 3 (Esto es el AND después del grupo OR)        
-            if ($request->filled('priority')) {
-                $query->where('priority', $request->get('priority'));
-            }
-
-            return DataTables::of($query)
-                ->addColumn('project', fn($task) => $task->project->title)
-                ->addColumn('due_date', function ($task) {
-                    return $task->due_date ? $task->due_date->format('d/m/Y') : '';
-                })
-                ->addColumn('status', function ($task) {
-                    return $task->status->label();
-                })
-                ->addColumn('priority', function ($task) {
-                    return $task->priority->label() ;
-                })
-                ->addColumn('files', function ($task) {
-                    return $task->files->map(fn($file) => '<a href="'.Storage::url($file->file_path).'" target="_blank">Archivo</a>')->implode(', ');
-                })
-                
-                ->addColumn('action', function($row)use($user){
-                    $btn = '<a href="'.route('tasks.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
-                    $btn .= '<i class="fas fa-eye"></i></a> ';
-                    if($row->status !== TaskStatus::Completed){
-                        $btn .= '<a href="'.route('tasks.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
-                        $btn .= '<i class="fas fa-edit"></i></a> ';
-                    }
-                    if($user->can('delete', $row)){
-                        $btn .= '<form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
-                                '.csrf_field().method_field('DELETE').'
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm(\'¿Eliminar proyecto?\')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>';
-                    }   
-
-                    if ($row->status !== \App\Enums\TaskStatus::Completed) {
-                        $btn .= '<button data-id="'.$row->id.'" class="btn btn-success btn-sm btn-complete" title="Marcar como Completada">';
-                        $btn .= '<i class="fas fa-check"></i></button>';
-                        return $btn;
-                    }
-                    
-                    return $btn;
-                })
-                ->rawColumns(['files','action'])
-                ->make(true);
+            return $this->dataTable->render();
         }
+        
         return view('tasks.index');
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -117,7 +71,7 @@ class TaskController extends Controller
         $projects = Project::accessibleByUser(Auth::user())->get();
 
         $task->load('files');
-        
+
         return view('tasks.edit', compact('task', 'projects'));
     }
 
@@ -127,7 +81,7 @@ class TaskController extends Controller
 
         $data = $request->validated();
 
-        // Eliminar archivos seleccionados
+        // Eliminar arquivos seleccionados
         if ($request->filled('delete_files')) {
             $filesToDelete = $task->files()->whereIn('id', $request->delete_files)->get();
             foreach ($filesToDelete as $file) {
