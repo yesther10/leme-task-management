@@ -28,7 +28,7 @@
                 @endforeach
             </ul>
         @else
-            <p>No hay archivos adjuntos.</p>
+            <p>No hay arquivos adjuntos.</p>
         @endif
 
         <a href="{{ route('tasks.index') }}" class="btn btn-secondary mt-3">Voltar</a>

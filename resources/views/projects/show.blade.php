@@ -28,7 +28,7 @@
                
             </ul>
         @else
-            <p>No hay archivo associado a este projeto.</p>
+            <p>No hay arquivo associado a este projeto.</p>
         @endif
 
         <hr>

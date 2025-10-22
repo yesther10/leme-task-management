@@ -16,28 +16,28 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
                 
-        // Función de ámbito para reusar la lógica de "tareas relevantes para el usuario"       
+        // Função de escopo para reutilizar a lógica de "tarefas relevantes para o usuário""       
         $relevantTasks = Task::relevantToUser($user);
 
-        // ===================================
-        // A. CÁLCULO DE MÉTRICAS (InfoBoxes)
-        // ===================================
+        // =============================
+        //  A. CÁLCULO DE MÉTRICAS 
+        // =============================
 
-        // 1. Tareas Pendientes (Status 1)
+        // 1. Tarefas pendentes (status 1)
         $pendingTasksCount = (clone $relevantTasks)
             ->where('status', TaskStatus::Pending->value)
             ->count();
         
-        // 2. Tareas Vencidas (Due date < Hoy y NO completadas)
+        // 2. Tarefas atrasadas (data de vencimento < hoje e NÃO concluídas)
         $overdueTasksCount = (clone $relevantTasks)
             ->where('due_date', '<', now()->startOfDay())
-            ->where('status', '!=', TaskStatus::Completed->value) // Excluir completadas
+            ->where('status', '!=', TaskStatus::Completed->value) // Excluir concluídas
             ->count();
 
-        // 3. Proyectos Activos (creados por el usuario y los que el usuario es miembro)
+        // 3. Projetos ativos (criados pelo usuário e aqueles dos quais o usuário é membro)
         $activeProjectsCount = Project::accessibleByUser($user)->count();
         
-        // 4. Tareas Terminadas Hoy (Status 3)
+        // 4. Tarefas concluídas (status 3)
         $completedTodayCount = (clone $relevantTasks)
             ->where('status', TaskStatus::Completed->value)
             ->whereDate('updated_at', now()->today())
@@ -48,7 +48,7 @@ class DashboardController extends Controller
         // B. LISTAS DE ACCESO RÁPIDO (Widgets)
         // ===================================
 
-        // 1. Mis Tareas Urgentes (prioridad 3 o vencidas)
+        // 1. Minhas tarefas urgentes (prioridade 3 ou atrasadas)
         $urgentTasks = (clone $relevantTasks)
             ->where(function ($query) {
                 $query->where('priority', TaskPriority::High->value) // Alta prioridad
@@ -58,7 +58,7 @@ class DashboardController extends Controller
             ->orderBy('priority', 'desc')
             ->orderBy('due_date', 'asc')
             ->limit(7)
-            ->with('project') // Cargar el nombre del proyecto
+            ->with('project') // Carregar o nome do projeto
             ->get();
                    
 

@@ -54,7 +54,7 @@
             @endforeach
         </ul>
     @else
-        <p>No hay archivos adjuntos.</p>
+        <p>No hay arquivos adjuntos.</p>
     @endif
 @endif
 
