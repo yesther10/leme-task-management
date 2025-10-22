@@ -11,9 +11,9 @@ enum TaskPriority: int
     public function label(): string
     {
         return match($this) {
-            self::Low => 'Baja',
-            self::Medium => 'Media',
-            self::High => 'Alta',
-        };
+            self::Low => 'Baixo',
+            self::Medium => 'Médio',
+            self::High => 'Alto',
+        }; 
     }
 }

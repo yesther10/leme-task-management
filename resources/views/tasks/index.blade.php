@@ -1,18 +1,18 @@
 @extends('adminlte::page')
 
-@section('title', 'Tareas')
+@section('title', 'Tarefas')
 
 @section('content_header')
-    <h1>Tareas</h1>
+    <h1>Tarefas</h1>
 @stop
 
 @section('content')
 
-    <a href="{{ route('tasks.create') }}" class="btn btn-success mb-3">Crear Tarea</a>
+    <a href="{{ route('tasks.create') }}" class="btn btn-success mb-3">Criar Tarefa</a>
     <div class="row mb-3">
     <div class="col-md-3">
         <select id="filterStatus" class="form-control">
-            <option value="">Todos los estados</option>
+            <option value="">Todos os estados</option>
             @foreach(App\Enums\TaskStatus::cases() as $status)
                 <option value="{{ $status->value }}">{{ $status->label() }}</option>
             @endforeach
@@ -20,7 +20,7 @@
     </div>
     <div class="col-md-3">
         <select id="filterPriority" class="form-control">
-            <option value="">Todas las prioridades</option>
+            <option value="">Todas as prioridades</option>
             @foreach(App\Enums\TaskPriority::cases() as $priority)
                 <option value="{{ $priority->value }}">{{ $priority->label() }}</option>
             @endforeach
@@ -33,12 +33,12 @@
             <tr>
                 <th>ID</th>
                 <th>Título</th>
-                <th>Proyecto</th>
-                <th>Archivos</th>
+                <th>Projeto</th>
+                <th>Arquivos</th>
                 <th>Prioridad</th>
                 <th>Estado</th>
                 <th>Vencimiento</th>
-                <th>Acciones</th>
+                <th>Ações</th>
             </tr>
         </thead>
     </table>
@@ -50,6 +50,9 @@
 <script>
     $(function () {
         $('#tasks-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+            },
             processing: true,
             serverSide: true,
             ajax: {
@@ -86,7 +89,7 @@
                     },
                     success: function (response) {
                         $('#tasks-table').DataTable().ajax.reload(null, false); // recarga tabla sin resetear pag
-                        alert('Tarea marcada como completada.');
+                        alert('Tarefa marcada como completada.');
                     },
                     error: function () {
                         alert('Error al actualizar la tarea.');

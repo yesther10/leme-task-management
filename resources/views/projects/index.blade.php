@@ -1,24 +1,24 @@
 @extends('adminlte::page')
 
-@section('title', 'Proyectos')
+@section('title', 'Projetos')
 
 @section('content_header')
-    <h1>Proyectos</h1>
+    <h1>Projetos</h1>
 @stop
 
 @section('content')
-    <a href="{{ route('projects.create') }}" class="btn btn-success mb-3">Crear Proyecto</a>
+    <a href="{{ route('projects.create') }}" class="btn btn-success mb-3">Criar Projeto</a>
     <table class="table table-bordered table-striped" id="projects-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Título</th>
-                <th>Dueño</th>
-                <th>Miembros</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Fin</th>
-                <th>Archivo</th>                
-                <th>Acciones</th>
+                <th>Responsável</th>
+                <th>Membros</th>
+                <th>Data Inicio</th>
+                <th>Data Fin</th>
+                <th>Arquivo</th>                
+                <th>Ações</th>
             </tr>
         </thead>
     </table>
@@ -35,6 +35,9 @@
 <script>
     $(function () {
         $('#projects-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+            },
             processing: true,
             serverSide: true,
             ajax: '{!! route('projects.index') !!}',

@@ -41,10 +41,10 @@ class TaskController extends Controller
                     return $task->due_date ? $task->due_date->format('d/m/Y') : '';
                 })
                 ->addColumn('status', function ($task) {
-                    return $task->status->name ;
+                    return $task->status->label();
                 })
                 ->addColumn('priority', function ($task) {
-                    return $task->priority->name ;
+                    return $task->priority->label() ;
                 })
                 ->addColumn('files', function ($task) {
                     return $task->files->map(fn($file) => '<a href="'.Storage::url($file->file_path).'" target="_blank">Archivo</a>')->implode(', ');

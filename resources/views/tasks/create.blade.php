@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', isset($task) ? 'Editar Tarea' : 'Crear Tarea')
+@section('title', isset($task) ? 'Editar Tarefa' : 'Criar Tarefa')
 
 @section('content_header')
-    <h1>{{ isset($task) ? 'Editar Tarea' : 'Crear Tarea' }}</h1>
+    <h1>{{ isset($task) ? 'Editar Tarefa' : 'Criar Tarefa' }}</h1>
 @stop
 
 @section('content')
@@ -21,7 +21,7 @@
         <form action="{{ isset($task) ? route('tasks.update', $task) : route('tasks.store') }}" method="POST" enctype="multipart/form-data">
             @if(isset($task)) @method('PUT') @endif
             @include('tasks._form')
-            <button type="submit" class="btn btn-primary">{{ isset($task) ? 'Actualizar' : 'Crear' }}</button>
+            <button type="submit" class="btn btn-primary">{{ isset($task) ? 'Actualizar' : 'Criar' }}</button>
         </form>
     </div>
 </div>

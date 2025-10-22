@@ -12,9 +12,9 @@ enum TaskStatus: int
     public function label(): string
     {
         return match($this) {
-            self::Pending => 'Pendiente',
-            self::InProgress => 'En progreso',
-            self::Completed => 'Completada',
+            self::Pending => 'Pendente',
+            self::InProgress => 'Em andamento',
+            self::Completed => 'Concluído',
         };
     }
 }

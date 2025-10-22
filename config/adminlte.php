@@ -298,22 +298,22 @@ return [
     |
     */
 
-    'menu' => [        
-        [
-            'text' => 'Projects',
-            'url' => 'projects',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'Tasks',
-            'url' => 'tasks',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
+    'menu' => [
         [
             'text' => 'Dashboard',
             'url' => 'dashboard',
             'icon' => 'fas fa-fw fa-tachometer-alt',
+        ],        
+        [
+            'text' => 'Projectos',
+            'url' => 'projects',
+            'icon' => 'fas fa-fw fa-folder-open',
         ],
+        [
+            'text' => 'Tarefas',
+            'url' => 'tasks',
+            'icon' => 'fas fa-fw fa-tasks',
+        ],        
                         
     ],
 
