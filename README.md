@@ -6,7 +6,7 @@ Este projeto é um sistema de gestão de tarefas desenvolvido com **Laravel**.
 
 ## Requisitos Prévios
 
--   **PHP** \>= 8.x
+-   **PHP** \>= 8.2
 -   **Composer**
 -   **MySQL** ou outro motor de base de dados compatível
 -   **Node.js** e **npm** (para gerenciar _assets_ frontend)
@@ -20,7 +20,7 @@ Este projeto é um sistema de gestão de tarefas desenvolvido com **Laravel**.
 
 ```bash
 git clone https://github.com/yesther10/leme-task-management.git
-cd leme-task-managemen
+cd leme-task-management
 ```
 
 ### 2\. Instalar dependências PHP com Composer
@@ -43,6 +43,12 @@ Abra o `.env` e configure os dados da base de dados de acordo com seu ambiente l
 
 ```bash
 php artisan key:generate
+```
+
+### 5\. limpar e gerar cache
+
+```bash
+php artisan optimize
 ```
 
 ### 6\. Executar migrações e _seeders_
