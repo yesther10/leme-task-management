@@ -18,7 +18,8 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Project::with('user', 'members')->select('projects.*');
+            $query = Project::with('user', 'members')->select('projects.*')
+                ->where('user_id', auth()->id());
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('owner', fn($p) => $p->user->name)
@@ -74,7 +75,8 @@ class ProjectController extends Controller
         $data = $request->validated();
         // dd($data);
         if ($request->hasFile('file_path')) {
-            $data['file_path'] = $request->file('file_path')->store('project_attachments');
+            $data['file_path'] = $request->file('file_path')
+                ->store('project_attachments', 'public');
         }
 
         $data['user_id'] = auth()->id();
@@ -100,6 +102,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        
         $users = User::all();
 
         $project->load('members');
@@ -112,10 +115,13 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, Project $project)
     {
+        $this->authorize('update', $project);
+
         $data = $request->validated();
 
         if ($request->hasFile('file_path')) {
-            $data['file_path'] = $request->file('file_path')->store('project_attachments');
+            $data['file_path'] = $request->file('file_path')
+                ->store('project_attachments', 'public');
         }
 
         $project->update($data);
@@ -131,6 +137,8 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
+        $this->authorize('delete', $project);
+
         $project->delete();
         return redirect()->route('projects.index')->with('success', 'Proyecto eliminado correctamente.');
     }

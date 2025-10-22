@@ -24,7 +24,7 @@
         @if($project->file_path)
             <ul>
                 
-                <li><a href="{{ Storage::url($file->file_path) }}" target="_blank">Archivo</a></li>
+                <li><a href="{{ Storage::url($project->file_path) }}" target="_blank">Archivo</a></li>
                
             </ul>
         @else
@@ -34,7 +34,7 @@
         <hr>
 
         <h4>Miembros del proyecto</h4>
-        
+
         <ul>
             @foreach($project->members as $member)
                 <li>{{ $member->name }} ({{ $member->email }})</li>
