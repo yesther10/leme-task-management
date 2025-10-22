@@ -4,6 +4,10 @@ Este projeto é um sistema de gestão de tarefas desenvolvido com **Laravel**.
 
 ---
 
+### Dashboard Principal
+
+![Tela de Dashboard do Leme Task Management](docs/images/dashboard.png)
+
 ## Requisitos Prévios
 
 -   **PHP** \>= 8.2
@@ -39,6 +43,15 @@ cp .env.example .env
 
 Abra o `.env` e configure os dados da base de dados de acordo com seu ambiente local.
 
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=database_name
+DB_USERNAME=user
+DB_PASSWORD=password
+```
+
 ### 5\. Gerar a chave da aplicação
 
 ```bash
@@ -57,19 +70,19 @@ php artisan optimize
 php artisan migrate:fresh --seed
 ```
 
-### 8\. Use o nome de usuário email:user@correo.com e a senha:password para efetuar login no sistema e ter uma visão geral rápida s\_
-
-### 9\. Crie um link simbólico para a pasta de armazenamento para acessar os arquivos armazenados s\_
+### 8\. Crie um link simbólico para a pasta de armazenamento para acessar os arquivos armazenados s\_
 
 ```bash
 php artisan storage:link
 ```
 
-### 10\. Executar o servidor local do Laravel
+### 9\. Executar o servidor local do Laravel
 
 ```bash
 php artisan serve
 ```
+
+### 10\. Use o nome de usuário email:user@correo.com e a senha:password para efetuar login no sistema e ter uma visão geral rápida s\_
 
 Geralmente estará disponível em `http://localhost:8000`.
 
