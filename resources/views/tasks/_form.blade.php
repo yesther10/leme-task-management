@@ -34,27 +34,28 @@
 </x-adminlte-select>
 @error('status') <small class="text-danger">{{ $message }}</small> @enderror
 
-{{-- <x-adminlte-input-date name="due_date" label="Data de conclusão" igroup-size="md" value="{{ old('due_date', isset($task) ? $task->due_date->format('Y-m-d') : '') }}" required/> --}}
 <x-adminlte-input type="date" name="due_date" id="due_date" label="Data de conclusão"
     igroup-size="md" value="{{ old('due_date', isset($task) ? $task->due_date->format('Y-m-d') : '') }}"
     required />
 @error('due_date') <small class="text-danger">{{ $message }}</small> @enderror
 
-<h5>Arquivos adjuntos</h5>
-@if($task->files->isNotEmpty())
-    <ul>
-        @foreach($task->files as $file)
-            <li>
-                <a href="{{ Storage::url($file->file_path) }}" target="_blank">Arquivo {{ $loop->iteration }}</a>
-                <label>
-                    <input type="checkbox" name="delete_files[]" value="{{ $file->id }}">
-                    Eliminar
-                </label>
-            </li>
-        @endforeach
-    </ul>
-@else
-    <p>No hay archivos adjuntos.</p>
+@if(isset($task))
+    <h5>Arquivos adjuntos</h5>
+    @if($task->files && $task->files->isNotEmpty())
+        <ul>
+            @foreach($task->files as $file)
+                <li>
+                    <a href="{{ Storage::url($file->file_path) }}" target="_blank">Arquivo {{ $loop->iteration }}</a>
+                    <label>
+                        <input type="checkbox" name="delete_files[]" value="{{ $file->id }}">
+                        Eliminar
+                    </label>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p>No hay archivos adjuntos.</p>
+    @endif
 @endif
 
 <x-adminlte-input-file name="files[]" label="Arquivos PDF" multiple igroup-size="md" />
