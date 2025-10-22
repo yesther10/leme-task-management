@@ -8,8 +8,8 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\TaskStatus;
 
 class TaskController extends Controller
 {
@@ -53,9 +53,10 @@ class TaskController extends Controller
                 ->addColumn('action', function($row){
                     $btn = '<a href="'.route('tasks.show', $row->id).'" class="btn btn-secondary btn-sm" title="Ver">';
                     $btn .= '<i class="fas fa-eye"></i></a> ';
-
-                    $btn .= '<a href="'.route('tasks.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
-                    $btn .= '<i class="fas fa-edit"></i></a> ';
+                    if($row->status !== TaskStatus::Completed){
+                        $btn .= '<a href="'.route('tasks.edit', $row->id).'" class="btn btn-primary btn-sm" title="Editar">';
+                        $btn .= '<i class="fas fa-edit"></i></a> ';
+                    }
 
                     $btn .= '<form action="'.route('tasks.destroy', $row->id).'" method="POST" style="display:inline;">
                                 '.csrf_field().method_field('DELETE').'
